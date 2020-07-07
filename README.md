@@ -1,4 +1,4 @@
-# .NET Core with Kafka
+# Kafka with .NET Core
 
 WebApi (Producer) and Worker (Consumer) 
 
