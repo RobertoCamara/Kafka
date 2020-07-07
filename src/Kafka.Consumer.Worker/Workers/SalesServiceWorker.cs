@@ -34,7 +34,9 @@ namespace Kafka.Consumer.Worker.Workers
             {
                 BootstrapServers = _configuration["Kafka:BootstrapServers"],
                 GroupId = $"{_configuration["Kafka:TopicName"]}-group-0",
-                AutoOffsetReset = AutoOffsetReset.Earliest
+                EnableAutoCommit = false,
+                AutoOffsetReset = AutoOffsetReset.Earliest,
+                //EnableAutoOffsetStore = false
             };
 
             using (var consumer = new ConsumerBuilder<Ignore, string>(config).Build())
@@ -46,7 +48,8 @@ namespace Kafka.Consumer.Worker.Workers
                     while (!cancellationToken.IsCancellationRequested)
                     {
                         var result = consumer.Consume(cancellationToken);
-                        _logger.LogInformation($"Message: {result.Message.Value}");
+                        _logger.LogInformation($"Key Message: {result.Message.Key} -> Message: {result.Message.Value}");
+                        //consumer.StoreOffset(result);
                     }
                 }
                 catch (OperationCanceledException)

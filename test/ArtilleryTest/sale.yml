@@ -1,0 +1,20 @@
+config:
+    target: "http://localhost:5000"
+    phases:
+      - duration: 30
+        arrivalRate: 10
+      - duration: 30
+        arrivalRate: 20  
+    processor: "./index.js"
+  
+scenarios:
+    - name: "Register sales"
+      flow:
+        - function: "generateRandomSale"
+        - post:
+            url: "/api/v1/Producer/SendMessage"
+            json:
+              user: "{{ user }}"
+              productName: "{{ productName }}"
+              price: "{{ price }}"
+        - log: "Sent a request to /api/v1/Producer/SendMessage with {{ user }}, {{ productName }}, {{ price }}"

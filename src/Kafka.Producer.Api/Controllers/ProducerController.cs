@@ -2,9 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Kafka.Producer.Api.Controllers
@@ -26,12 +28,12 @@ namespace Kafka.Producer.Api.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
         [HttpPost("SendMessage")]
-        public IActionResult SendMessage([FromQuery] string msg)
+        public IActionResult SendMessage([FromBody] Sale sale)
         {
-            return Created("", SendMessageByKafka(msg));
+            return Created("", SendMessageByKafka(sale));
         }
 
-        private string SendMessageByKafka(string message)
+        private string SendMessageByKafka(Sale message)
         {
             var config = new ProducerConfig { BootstrapServers = _configuration["Kafka:BootstrapServers"] };
 
@@ -39,8 +41,9 @@ namespace Kafka.Producer.Api.Controllers
             {
                 try
                 {
+                    string data = JsonConvert.SerializeObject(message);
                     var result = producer
-                                        .ProduceAsync(_configuration["Kafka:TopicName"], new Message<Null, string> { Value = message })
+                                        .ProduceAsync(_configuration["Kafka:TopicName"], new Message<Null, string> { Value = data })
                                         .GetAwaiter()
                                         .GetResult();
 
@@ -55,4 +58,13 @@ namespace Kafka.Producer.Api.Controllers
             return string.Empty;
         }
     }
+
+    public class Sale
+    {
+        public string User { get; set; }
+        public string ProductName { get; set; }
+        public decimal Price { get; set; }
+    }
+
+    
 }
